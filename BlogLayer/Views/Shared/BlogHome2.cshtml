@@ -1,5 +1,5 @@
 ﻿@using BlogLayer.CF;
-@using BlogLayer.Models;
+@using BlogLayer.Models.DataModel;
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -38,7 +38,7 @@ ddsmoothmenu.init({
     <script type="text/JavaScript" src="@Url.Content("~/Content/js/slimbox2.js")"></script>
 </head>
 <body style="background-color:black " >
-    <div id="templatemo_wrapper">
+    <div id="templatemo_wrapper">    
         <div id="templatemo_header">
             <span class="header_border"></span>
             <div id="site_title"><a href="#">YG3-9409</a></div>
@@ -57,7 +57,8 @@ ddsmoothmenu.init({
                 <div class="sidebar_content_box">
                     <h3>Kategoriler</h3>
                     <ul class="sidebar_link">
-                       @{                          
+                        @*kategorileri çektik*@                        
+                       @{                        
                            RazerBlogContext _db = new RazerBlogContext();
                            List<Category> CategoriesList = _db.Categories.ToList();
                            foreach (Category item in CategoriesList)
@@ -74,7 +75,7 @@ ddsmoothmenu.init({
             <div class="clear"></div>
         </div> <!-- END of templatemo_main_content -->
         <div id="templatemo_footer">
-            @Html.ActionLink("Admin", "Index","Admin/Index")
+            @Html.ActionLink("Admin", "Login","Admin/Login")
         </div> <!-- END of templatemo_footer -->
     </div> <!-- END of templatemo_wrapper -->
     <!-- templatemo 389 universe -->

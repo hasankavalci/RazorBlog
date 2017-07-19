@@ -1,4 +1,4 @@
-﻿using BlogLayer.Models;
+﻿using BlogLayer.Models.DataModel;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -14,6 +14,7 @@ namespace BlogLayer.CF
             Database.Connection.ConnectionString = "Server=.;Database=MyBlog;User Id=sa;Password=123456789?";
         }
         public DbSet<Category> Categories { get; set; }
+        public DbSet<Admin> Admins { get; set; }
     }
    
     
