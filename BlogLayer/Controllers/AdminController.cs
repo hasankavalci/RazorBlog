@@ -10,7 +10,7 @@ using System.Web.Mvc;
 namespace BlogLayer.Controllers
 {
     public class AdminController : Controller
-    {
+    {     
         // GET: Admin
         public ActionResult Index()
         {
@@ -121,14 +121,45 @@ namespace BlogLayer.Controllers
             return View(CategoryToDel);
         }
         [HttpPost]
-        public ActionResult KategoriSil(FormCollection frm)
+        public ActionResult KategoriSil(Category c)
         {
-            int gelenid = Convert.ToInt32(frm.Get("IDCarrier"));
             RazerBlogContext _db = new RazerBlogContext();
-            Category toDel = _db.Categories.First(x => x.CategoryID == gelenid);
-            _db.Categories.Remove(toDel);
+            Category ToDel = _db.Categories.First(x => x.CategoryID == c.CategoryID);
+            _db.Categories.Remove(ToDel);
             _db.SaveChanges();
             return RedirectToAction("KategoriListele");
         }
+        public ActionResult KategoriGuncelle(int KategoriID)
+        {
+            RazerBlogContext _db = new RazerBlogContext();
+            Category ToEdit = _db.Categories.First(x => x.CategoryID == KategoriID);
+            return View(ToEdit);
+        }
+        [HttpPost]
+        public ActionResult KategoriGuncelle(Category c)
+        {
+            RazerBlogContext _db = new RazerBlogContext();
+            Category ToEdit = _db.Categories.First(x => x.CategoryID == c.CategoryID);
+            ToEdit.Name = c.Name;
+            ToEdit.UrlName = c.UrlName;
+            _db.SaveChanges();
+            return RedirectToAction("KategoriListele");
+        }
+        public void TumKategoriler()
+        {
+            RazerBlogContext _db = new RazerBlogContext();
+            List<SelectListItem> KategorilerList = new List<SelectListItem>();
+            var kategoriler = _db.Categories.ToList();
+            foreach (var item in kategoriler)
+            {
+                KategorilerList.Add(new SelectListItem { Text = item.Name, Value = item.CategoryID.ToString() });
+            }
+            ViewBag.kategoriler = KategorilerList;
+        }
+        public ActionResult MakaleEkle()
+        {
+            TumKategoriler();
+            return View();
+        }       
     }
 }
