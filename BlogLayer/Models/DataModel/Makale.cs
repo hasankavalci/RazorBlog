@@ -13,7 +13,8 @@ namespace BlogLayer.Models.DataModel
         public string Description { get; set; }
         public string Image { get; set; }
         public string text { get; set; }
-        public string category   { get; set; }
-        public Admin AuthorName { get; set; }
+        public virtual Category Category   { get; set; }
+        public virtual Admin AuthorName { get; set; }
+        public string Keywords { get; set; }
     }
 }
