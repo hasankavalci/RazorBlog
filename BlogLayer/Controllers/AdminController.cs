@@ -157,7 +157,7 @@ namespace BlogLayer.Controllers
         {
             RazerBlogContext _db = new RazerBlogContext();
             List<Admin> AdminList = _db.Admins.ToList();
-            ViewBag.kategoriler = AdminList;
+            ViewBag.admins = AdminList;
             return AdminList;
         }
         public ActionResult MakaleEkle()
@@ -167,7 +167,8 @@ namespace BlogLayer.Controllers
         }
         [HttpPost, ValidateInput(false)]
         public ActionResult MakaleEkle(FormCollection frm, HttpPostedFileBase file)
-        {            
+        {
+            RazerBlogContext _db = new RazerBlogContext();        
             string ViewTitle = frm.Get("Title");
             string ViewDescription = frm.Get("Description");
             int ViewCategoryID =Convert.ToInt32(frm.Get("Category"));
@@ -175,23 +176,25 @@ namespace BlogLayer.Controllers
             string ViewKeywords = frm.Get("Keywords");
             int ViewYazarID = Convert.ToInt32(Session["adminid"]);
 
-            Random rnd = new Random();
-            string sayi = rnd.Next(111111, 999999).ToString();
-            var FileName = Path.GetFileName(file.FileName);
-            var File = Path.Combine(Server.MapPath("~/MakaleResimler/"), sayi + FileName);
-            file.SaveAs(File);
-            string FilePath = "~/MakaleResimler/" + sayi + FileName;
-
             Makale ToAdd = new Makale();
-            ToAdd.AuthorName = TumAdmin().FirstOrDefault(x => x.AdminID == ViewYazarID);
-            ToAdd.Category = TumKategoriler().FirstOrDefault(x => x.CategoryID == ViewCategoryID);
+            ToAdd.AuthorName =_db.Admins.FirstOrDefault(x => x.AdminID == ViewYazarID);
+            ToAdd.Category =_db.Categories.FirstOrDefault(x => x.CategoryID == ViewCategoryID);
             ToAdd.Description = ViewDescription;
-            ToAdd.Image = FilePath;
+            if (file != null)
+            {
+                Random rnd = new Random();
+                string sayi = rnd.Next(111111, 999999).ToString();
+                var FileName = Path.GetFileName(file.FileName);
+                var File = Path.Combine(Server.MapPath("~/MakaleResimler/"), sayi + FileName);
+                file.SaveAs(File);
+                string FilePath = "~/MakaleResimler/" + sayi + FileName;
+                ToAdd.Image = FilePath;
+            }           
             ToAdd.Keywords = ViewKeywords;
             ToAdd.text = ViewText;
             ToAdd.Title = ViewTitle;
 
-            RazerBlogContext _db = new RazerBlogContext();
+            //RazerBlogContext _db = new RazerBlogContext();
             _db.Makales.Add(ToAdd);
             if( _db.SaveChanges()>0)
             {
@@ -201,6 +204,8 @@ namespace BlogLayer.Controllers
             {
                 ViewBag.Mesaj = "";
             }
+            TumKategoriler();
+            TumAdmin();
             return View();
         }
         public ActionResult MakaleListele()
@@ -227,28 +232,113 @@ namespace BlogLayer.Controllers
         {
             RazerBlogContext _db = new RazerBlogContext();
             List<SelectListItem> katlist = new List<SelectListItem>();
-            var katsorgu = _db.Categories.ToList();
-            foreach (var item in katsorgu)
+            List<Category> katsorgu = _db.Categories.ToList();
+            foreach (Category item in katsorgu)
             {
+                SelectListItem li = new SelectListItem();
+                li.Text = item.Name;
+                li.Value = item.CategoryID.ToString();
+
                 if (yakalananıd == item.CategoryID)
                 {
-                    katlist.Add(new SelectListItem { Text = item.Name, Value = item.CategoryID.ToString(), Selected = true });
+                    li.Selected = true;
+                    //katlist.Add(new SelectListItem { Text = item.Name, Value = item.CategoryID.ToString(), Selected = true });
                 }
-                else
-                {
-                    katlist.Add(new SelectListItem { Text = item.Name, Value = item.CategoryID.ToString() });
-                }
-                               
+                katlist.Add(li);
+                //else
+                //{
+                //    katlist.Add(new SelectListItem { Text = item.Name, Value = item.CategoryID.ToString() });
+                //}                               
             }
             ViewBag.kat = katlist;
         }
         public ActionResult MakaleGuncelle(int GelenMakaleID,FormCollection frm)
-        {
-            
+        {            
             RazerBlogContext _db = new RazerBlogContext();
             Makale ToEdit = _db.Makales.FirstOrDefault(x => x.MakaleID == GelenMakaleID);
             yakalaıd(Convert.ToInt32(ToEdit.Category.CategoryID));
             return View(ToEdit);
-        }       
+        }
+        [HttpPost,ValidateInput(false)]
+        public ActionResult MakaleGuncelle(FormCollection frm,HttpPostedFileBase file)
+        {
+            int ViewMakaleID = Convert.ToInt32(frm.Get("MakaleID"));
+            string ViewTitle = frm.Get("Title");
+            string ViewDescription = frm.Get("Description");
+            int ViewCategoryID = Convert.ToInt32(frm.Get("Category.CategoryID"));
+            string ViewText = frm.Get("Text");
+            string ViewKeywords = frm.Get("Keywords");
+            bool ViewResmiSil =frm.Get("ResmiSil").Contains("true");
+
+            RazerBlogContext _db = new RazerBlogContext();
+            Makale MakaleToEdit = _db.Makales.FirstOrDefault(x => x.MakaleID == ViewMakaleID);
+            Category CategoryToAdd = _db.Categories.FirstOrDefault(x => x.CategoryID == ViewCategoryID);
+            if (ViewResmiSil)
+            {
+                string FileFullPath = Request.MapPath(MakaleToEdit.Image);
+                System.IO.File.Delete(FileFullPath);
+                MakaleToEdit.Image = null;
+            }
+            else
+            {
+                if (file!= null)
+                {
+                    string FileFullPath = Request.MapPath(MakaleToEdit.Image);
+                    System.IO.File.Delete(FileFullPath);
+
+                    Random rnd = new Random();
+                    string sayi = rnd.Next(111111, 999999).ToString();
+                    var FileName = Path.GetFileName(file.FileName);
+                    var File = Path.Combine(Server.MapPath("~/MakaleResimler/"), sayi + FileName);
+                    file.SaveAs(File);
+                    string FilePath = "~/MakaleResimler/" + sayi + FileName;
+                    MakaleToEdit.Image = FilePath;
+                }                
+                   
+            }
+            MakaleToEdit.Title = ViewTitle;
+            MakaleToEdit.Description = ViewDescription;
+            MakaleToEdit.text = ViewText;
+            MakaleToEdit.Keywords = ViewKeywords;
+            MakaleToEdit.Category = CategoryToAdd;
+            _db.SaveChanges();
+            return RedirectToAction("MakaleListele");
+        }
+        public ActionResult YorumlariYonet()
+        {
+            RazerBlogContext _db = new RazerBlogContext();
+            List<Yorum> YorumlarList = _db.Yorums.ToList();
+            return View(YorumlarList);
+        }
+        public ActionResult YorumOnayla(int ViewYorumID)
+        {
+            RazerBlogContext _db = new RazerBlogContext();
+            Yorum ToEdit = _db.Yorums.FirstOrDefault(x => x.YorumID == ViewYorumID);
+            ToEdit.OnayDurumu = 1;
+            _db.SaveChanges();
+            return RedirectToAction("YorumlariYonet");
+        }
+        public ActionResult YorumOnayiKaldir(int ViewYorumID)
+        {
+            RazerBlogContext _db = new RazerBlogContext();
+            Yorum ToEdit = _db.Yorums.FirstOrDefault(x => x.YorumID == ViewYorumID);
+            ToEdit.OnayDurumu = 0;
+            _db.SaveChanges();
+            return RedirectToAction("YorumlariYonet");
+        }
+        public ActionResult YorumSil(int ViewYorumID)
+        {
+            RazerBlogContext _db = new RazerBlogContext();
+            Yorum ToDelete = _db.Yorums.FirstOrDefault(x => x.YorumID == ViewYorumID);
+            _db.Yorums.Remove(ToDelete);
+            _db.SaveChanges();
+            return RedirectToAction("YorumlariYonet");
+        }
+        public ActionResult Cikis()
+        {
+            Session.Remove("giris");
+            Session.Remove("adminid");
+            return RedirectToAction("Index", "Home");
+        }      
     }
 }

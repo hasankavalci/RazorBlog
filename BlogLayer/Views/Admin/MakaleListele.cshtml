@@ -48,7 +48,13 @@
             @Html.DisplayFor(modelItem => item.Description)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.Image)
+            
+            @if (item.Image != null)
+            {
+                @Html.DisplayFor(modelItem => item.Image)
+                <img src="@Url.Content(item.Image)" style="width:150px; height:100px" ; alt="flower 5" class="img_border  img_nom" />
+            }
+            
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.Category.Name)

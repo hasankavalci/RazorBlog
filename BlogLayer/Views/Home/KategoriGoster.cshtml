@@ -3,28 +3,26 @@
     ViewBag.Title = "Index";
     Layout = "~/Views/Shared/BlogHome2.cshtml";
 }
-
-@{ 
+@{
     List<Makale> Makaleler = (List<Makale>)ViewBag.sayfamakale;
     foreach (Makale item in Makaleler)
     {
         <div class="content_wrapper content_mb_30">
-            <h2 class="post_title">@Html.ActionLink(item.Title,"MakaleGoster",new { @ViewMakaleID=item.MakaleID})</h2>
+            <h2 class="post_title">@Html.ActionLink(item.Title, "MakaleGoster", new { @ViewMakaleID = item.MakaleID })</h2>
             <a href='@Url.Action("MakaleGoster","Home",new { ViewMakaleID=item.MakaleID})'>
-              @if (item.Image != null)
-              {
-                <img src="@Url.Content(item.Image)" style="width:600px; height:200px" ; alt="flower 5" class="img_border  img_nom" />
-              }           
+                @if (item.Image != null)
+                {
+                    <img src="@Url.Content(item.Image)" style="width:600px; height:200px" ; alt="flower 5" class="img_border  img_nom" />
+                }
             </a>
-            <p><b>Kategori:</b>@Html.ActionLink(item.Category.Name,"KategoriGoster",new { ViewMakaleID=item.Category.CategoryID})</p>
+            <p><b>Kategori:</b>@Html.ActionLink(item.Category.Name, "KategoriGoster", new { ViewMakaleID = item.Category.CategoryID })</p>
             <p>@(item.Description)</p>
-            <div class="clear"></div>           
+            <div class="clear"></div>
         </div>
     }
-
     <div class="templatemo_paging">
         <ul>
-            @{ 
+            @{
                 int ToplamSayfaSayisi = Convert.ToInt32(ViewBag.sayfasayisi);
                 int sayfano = ViewBag.sayfa;
                 if (ToplamSayfaSayisi > 1)
@@ -37,11 +35,10 @@
                         }
                         else
                         {
-                            <li><a href="@Url.Action("Index",new { StrSayfa=i})">@i</a></li>
+                            <li><a href="@Url.Action("KategoriGoster",new { StrSayfa=i,ViewKategoriID=ViewBag.AktifKategoriID})">@i</a></li>
                         }
                     }
                 }
-
             }
         </ul>
     </div>
