@@ -339,6 +339,32 @@ namespace BlogLayer.Controllers
             Session.Remove("giris");
             Session.Remove("adminid");
             return RedirectToAction("Index", "Home");
-        }      
+        }
+        public ActionResult MailGuncelle()
+        {
+            RazerBlogContext _db = new RazerBlogContext();
+            SistemMail ToEdit = _db.SistemMails.FirstOrDefault(x => x.SistemMailID == 1);
+            return View(ToEdit);
+            
+        }
+        [HttpPost]
+        public ActionResult MailGuncelle(FormCollection frm)
+        {
+            RazerBlogContext _db = new RazerBlogContext();
+            SistemMail ToEdit = _db.SistemMails.FirstOrDefault(x => x.SistemMailID == 1);
+            string ViewMail = frm.Get("Mail");
+            string ViewPassword = frm.Get("Password");
+            ToEdit.Mail = ViewMail;
+            ToEdit.Password = ViewPassword;
+            if (_db.SaveChanges() > 0)
+            {
+                ViewBag.Mesaj = "Mail Ayarları Güncellendi";
+            }
+            else
+            {
+                ViewBag.Mesaj = "Mail Ayarları sırasında Bir Hata olustu";
+            }
+            return RedirectToAction("Index");
+        }     
     }
 }
